@@ -252,14 +252,6 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
                 x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
                 x_sample = x_sample.astype(np.uint8)
 
-                if p.restore_faces:
-                    if opts.save and not p.do_not_save_samples and opts.save_images_before_face_restoration:
-                        images.save_image(Image.fromarray(x_sample), p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p)
-
-                    devices.torch_gc()
-
-                    x_sample = modules.face_restoration.restore_faces(x_sample)
-
                 image = Image.fromarray(x_sample)
 
 
@@ -279,6 +271,10 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
 
                 if opts.samples_save and not p.do_not_save_samples:
                     images.save_image(image, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p)
+
+                if p.restore_faces:
+                    # run_extras(image,              gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility)
+                    modules.extras.run_extras(image,               0.5,                 0.666,               0.5,                2,                 2,                 0,                          0.0)
 
                 output_images.append(image)
 
