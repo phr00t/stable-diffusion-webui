@@ -259,7 +259,7 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
 
         with gr.Row().style(equal_height=False):
             with gr.Column(variant='panel'):
-                steps = gr.Slider(minimum=1, maximum=150, step=1, label="Sampling Steps", value=20)
+                steps = gr.Slider(minimum=1, maximum=250, step=1, label="Sampling Steps", value=50)
                 sampler_index = gr.Radio(label='Sampling method', elem_id="txt2img_sampling", choices=[x.name for x in samplers], value=samplers[0].name, type="index")
 
                 with gr.Row():
@@ -391,7 +391,7 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                         resize_mode = gr.Radio(label="Resize mode", elem_id="resize_mode", show_label=False, choices=["Just resize", "Crop and resize", "Resize and fill"], type="index", value="Just resize")
                         mask_mode = gr.Radio(label="Mask mode", show_label=False, choices=["Draw mask", "Upload mask"], type="index", value="Draw mask")
 
-                steps = gr.Slider(minimum=1, maximum=150, step=1, label="Sampling Steps", value=20)
+                steps = gr.Slider(minimum=1, maximum=250, step=1, label="Sampling Steps", value=50)
                 sampler_index = gr.Radio(label='Sampling method', choices=[x.name for x in samplers_for_img2img], value=samplers_for_img2img[0].name, type="index")
                 mask_blur = gr.Slider(label='Mask blur', minimum=0, maximum=64, step=1, value=4, visible=False)
                 inpainting_fill = gr.Radio(label='Masked content', choices=['fill', 'original', 'latent noise', 'latent nothing'], value='fill', type="index", visible=False)
@@ -414,8 +414,8 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
 
                 with gr.Group():
                     cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG Scale', value=7.0)
-                    denoising_strength = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Denoising strength', value=0.75)
-                    denoising_strength_change_factor = gr.Slider(minimum=0.9, maximum=1.1, step=0.01, label='Denoising strength change factor', value=1, visible=False)
+                    denoising_strength = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Amount of Change', value=0.75)
+                    denoising_strength_change_factor = gr.Slider(minimum=0.9, maximum=1.1, step=0.01, label='Amount of Change factor', value=1, visible=False)
 
                 with gr.Group():
                     height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height", value=512)
