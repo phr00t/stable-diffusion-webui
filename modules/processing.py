@@ -169,13 +169,6 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
     if type(p.prompt) == list:
         all_prompts = p.prompt
     else:
-        # are we performing extras on this image after generation?
-        do_extras = p.prompt[0] == '@'
-
-        # if so, get rid of that @ in the prompt starting line
-        if do_extras:
-            p.prompt = p.prompt[1:]
-
         all_prompts = p.batch_size * p.n_iter * [p.prompt]
 
     if type(p.seed) == list:
@@ -260,11 +253,6 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
                 x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
                 x_sample = x_sample.astype(np.uint8)
 
-                if p.restore_faces:
-                    devices.torch_gc()
-
-                    x_sample = modules.face_restoration.restore_faces(x_sample)
-
                 image = Image.fromarray(x_sample)
 
                 if p.overlay_images is not None and i < len(p.overlay_images):
@@ -284,7 +272,7 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
                 if opts.samples_save and not p.do_not_save_samples:
                     images.save_image(image, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), process_info = Processed(p, output_images, all_seeds[0], infotext()))
 
-                if do_extras:
+                if p.restore_faces:
                     # run_extras(image,              gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility)
                     modules.extras.run_extras(image,               0.5,                 0.666,               0.5,                2,                 2,                 0,                          0.0)
 
