@@ -270,7 +270,7 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                     batch_count = gr.Slider(minimum=1, maximum=cmd_opts.max_batch_count, step=1, label='Batch count', value=1)
                     batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch size', value=1)
 
-                cfg_scale = gr.Slider(minimum=1.0, maximum=15.0, step=0.5, label='CFG Scale', value=7.0)
+                cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG Scale', value=7.0)
 
                 with gr.Group():
                     height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height", value=512)
@@ -413,7 +413,7 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                     batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch size', value=1)
 
                 with gr.Group():
-                    cfg_scale = gr.Slider(minimum=1.0, maximum=15.0, step=0.5, label='CFG Scale', value=7.0)
+                    cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG Scale', value=7.0)
                     denoising_strength = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Denoising strength', value=0.75)
                     denoising_strength_change_factor = gr.Slider(minimum=0.9, maximum=1.1, step=0.01, label='Denoising strength change factor', value=1, visible=False)
 
@@ -661,19 +661,20 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
         info = opts.data_labels[key]
         t = type(info.default)
 
+        args = info.component_args() if callable(info.component_args) else info.component_args
+
         if info.component is not None:
-            args = info.component_args() if callable(info.component_args) else info.component_args
-            item = info.component(label=info.label, value=fun, **(args or {}))
+            comp = info.component
         elif t == str:
-            item = gr.Textbox(label=info.label, value=fun, lines=1)
+            comp = gr.Textbox
         elif t == int:
-            item = gr.Number(label=info.label, value=fun)
+            comp = gr.Number
         elif t == bool:
-            item = gr.Checkbox(label=info.label, value=fun)
+            comp = gr.Checkbox
         else:
             raise Exception(f'bad options item type: {str(t)} for key {key}')
 
-        return item
+        return comp(label=info.label, value=fun, **(args or {}))
 
     components = []
     keys = list(opts.data_labels.keys())
@@ -684,6 +685,10 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
         up = []
 
         for key, value, comp in zip(opts.data_labels.keys(), args, components):
+            comp_args = opts.data_labels[key].component_args
+            if comp_args and isinstance(comp_args, dict) and comp_args.get('visible') is False:
+                continue
+
             opts.data[key] = value
             up.append(comp.update(value=value))
 
