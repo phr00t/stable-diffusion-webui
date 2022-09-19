@@ -564,8 +564,6 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                     img2img_preview = gr.Image(elem_id='img2img_preview', visible=False)
                     img2img_gallery = gr.Gallery(label='Output', elem_id='img2img_gallery').style(grid=4)
 
-                setup_progressbar(progressbar, img2img_preview)
-
                 with gr.Group():
                     with gr.Row():
                         save = gr.Button('Save')
@@ -576,6 +574,7 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                         img2img_save_style = gr.Button('Save prompt as style')
 
                 progressbar = gr.HTML(elem_id="progressbar")
+                setup_progressbar(progressbar, img2img_preview)
 
                 with gr.Group():
                     html_info = gr.HTML()
