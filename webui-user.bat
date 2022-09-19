@@ -3,6 +3,6 @@
 set PYTHON=
 set GIT=
 set VENV_DIR=
-set COMMANDLINE_ARGS=--opt-split-attention
+set COMMANDLINE_ARGS=--autolaunch
 
 call webui.bat
