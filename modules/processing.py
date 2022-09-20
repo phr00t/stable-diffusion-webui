@@ -374,7 +374,7 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
 
                 if p.restore_faces:
                     # run_extras(image, image_folder, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility):
-                    modules.extras.run_extras(image, None,          0.5,                 0.666,               0.5,                2,                 2,                 0,                          0.0)
+                    modules.extras.run_extras(image, None,          0.666,                 0.5,               0.5,                2,                 2,                 0,                          0.0)
 
                 output_images.append(image)
 
