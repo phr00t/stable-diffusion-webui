@@ -450,9 +450,6 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                         send_to_inpaint = gr.Button('Send to inpaint')
                         send_to_extras = gr.Button('Send to extras')
 
-                progressbar = gr.HTML(elem_id="progressbar")
-                setup_progressbar(progressbar, txt2img_preview)
-
                 with gr.Group():
                     html_info = gr.HTML()
                     generation_info = gr.Textbox(visible=False)
