@@ -200,7 +200,7 @@ def check_progress_call():
         else:
             preview_visibility = gr_show(True)
 
-    return f"<span style='display: none'>{time.time()}</span><p>{progressbar}</p>", preview_visibility, image
+    return f"<span id='progressSpan' style='display: none'>{time.time()}</span><p>{progressbar}</p>", preview_visibility, image
 
 
 def check_progress_call_initial():
@@ -755,6 +755,8 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                 result_images = gr.Gallery(label="Result", show_label=False)
                 html_info_x = gr.HTML()
                 html_info = gr.HTML()
+                extras_send_to_img2img = gr.Button('Send to img2img')
+                extras_send_to_inpaint = gr.Button('Send to inpaint')
 
         submit.click(
             fn=run_extras,
@@ -776,6 +778,20 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                 html_info_x,
                 html_info,
             ]
+        )
+     
+        extras_send_to_img2img.click(
+            fn=lambda x: image_from_url_text(x),
+            _js="extract_image_from_gallery_img2img",
+            inputs=[result_images],
+            outputs=[init_img],
+        )
+        
+        extras_send_to_inpaint.click(
+            fn=lambda x: image_from_url_text(x),
+            _js="extract_image_from_gallery_img2img",
+            inputs=[result_images],
+            outputs=[init_img_with_mask],
         )
 
     pnginfo_interface = gr.Interface(
@@ -818,7 +834,11 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
     components = []
 
     def run_settings(*args):
-        up = []
+        changed = 0
+
+        for key, value, comp in zip(opts.data_labels.keys(), args, components):
+            if not opts.same_type(value, opts.data_labels[key].default):
+                return f"Bad value for setting {key}: {value}; expecting {type(opts.data_labels[key].default).__name__}"
 
         for key, value, comp in zip(opts.data_labels.keys(), args, components):
             comp_args = opts.data_labels[key].component_args
@@ -828,14 +848,15 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
             oldval = opts.data.get(key, None)
             opts.data[key] = value
 
-            if oldval != value and opts.data_labels[key].onchange is not None:
-                opts.data_labels[key].onchange()
+            if oldval != value:
+                if opts.data_labels[key].onchange is not None:
+                    opts.data_labels[key].onchange()
 
-            up.append(comp.update(value=value))
+                changed += 1
 
         opts.save(shared.config_filename)
 
-        return 'Settings applied.'
+        return f'{changed} settings changed.'
 
     with gr.Blocks(analytics_enabled=False) as settings_interface:
         settings_submit = gr.Button(value="Apply settings", variant='primary')
@@ -1022,7 +1043,7 @@ with open(os.path.join(script_path, "script.js"), "r", encoding="utf8") as jsfil
     javascript = f'<script>{jsfile.read()}</script>'
 
 jsdir = os.path.join(script_path, "javascript")
-for filename in os.listdir(jsdir):
+for filename in sorted(os.listdir(jsdir)):
     with open(os.path.join(jsdir, filename), "r", encoding="utf8") as jsfile:
         javascript += f"\n<script>{jsfile.read()}</script>"
 
