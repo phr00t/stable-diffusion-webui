@@ -12,7 +12,7 @@ import traceback
 
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, PngImagePlugin
 
 import gradio as gr
 import gradio.utils
@@ -97,10 +97,11 @@ def save_files(js_data, images, index):
     filenames = []
 
     data = json.loads(js_data)
-    
-    if index > -1 and opts.save_selected_only and (index > 0 or not opts.return_grid): # ensures we are looking at a specific non-grid picture, and we have save_selected_only
+    if index > -1 and opts.save_selected_only and (index >= data["index_of_first_image"]):  # ensures we are looking at a specific non-grid picture, and we have save_selected_only
         images = [images[index]]
-        data["seed"] += (index - 1 if opts.return_grid else index)
+        infotexts = [data["infotexts"][index]]
+    else:
+        infotexts = data["infotexts"]
 
     with open(os.path.join(opts.outdir_save, "log.csv"), "a", encoding="utf8", newline='') as file:
         at_start = file.tell() == 0
@@ -116,8 +117,11 @@ def save_files(js_data, images, index):
             if filedata.startswith("data:image/png;base64,"):
                 filedata = filedata[len("data:image/png;base64,"):]
 
-            with open(filepath, "wb") as imgfile:
-                imgfile.write(base64.decodebytes(filedata.encode('utf-8')))
+            pnginfo = PngImagePlugin.PngInfo()
+            pnginfo.add_text('parameters', infotexts[i])
+
+            image = Image.open(io.BytesIO(base64.decodebytes(filedata.encode('utf-8'))))
+            image.save(filepath, quality=opts.jpeg_quality, pnginfo=pnginfo)
 
             filenames.append(filename)
 
@@ -859,10 +863,12 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo, run_modelmerger):
             with gr.Column(variant='panel'):
                 gr.HTML(value="<p>A merger of the two checkpoints will be generated in your <b>/models</b> directory.</p>")
                 
-                modelname_0 = gr.Textbox(elem_id="modelmerger_modelname_0", label="Model Name (to)")
-                modelname_1 = gr.Textbox(elem_id="modelmerger_modelname_1", label="Model Name (from)")
-                interp_method = gr.Radio(choices=["Weighted Sum", "Sigmoid"], value="Weighted Sum", label="Interpolation Method")
+                with gr.Row():
+                    ckpt_name_list = sorted([x.model_name for x in modules.sd_models.checkpoints_list.values()])
+                    primary_model_name   = gr.Dropdown(ckpt_name_list, elem_id="modelmerger_primary_model_name", label="Primary Model Name")
+                    secondary_model_name = gr.Dropdown(ckpt_name_list, elem_id="modelmerger_secondary_model_name", label="Secondary Model Name")
                 interp_amount = gr.Slider(minimum=0.0, maximum=1.0, step=0.05, label='Interpolation Amount', value=0.3)
+                interp_method = gr.Radio(choices=["Weighted Sum", "Sigmoid", "Inverse Sigmoid"], value="Weighted Sum", label="Interpolation Method")
                 submit = gr.Button(elem_id="modelmerger_merge", label="Merge", variant='primary')
             
             with gr.Column(variant='panel'):
@@ -871,8 +877,8 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo, run_modelmerger):
             submit.click(
                 fn=run_modelmerger,
                 inputs=[
-                    modelname_0,
-                    modelname_1,
+                    primary_model_name,
+                    secondary_model_name,
                     interp_method,
                     interp_amount
                 ],
