@@ -447,7 +447,7 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
                 if opts.enable_pnginfo:
                     image.info["parameters"] = text
                 
-				if p.restore_faces:
+                if p.restore_faces:
                     # run_extras(extras_mode, image, image_folder, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility)
                     modules.extras.run_extras(0,image, None,                   0.666,                   0.5,               0.5,                2,                 4,                 0,                          0.0)
                 output_images.append(image)
