@@ -84,7 +84,7 @@ def apply_hypernetwork(p, x, xs):
 
 
 def apply_clip_skip(p, x, xs):
-    opts.data["CLIP_ignore_last_layers"] = x
+    opts.data["CLIP_stop_at_last_layers"] = x
 
 
 def format_value_add_label(p, opt, x):
@@ -205,8 +205,11 @@ class Script(scripts.Script):
         if not no_fixed_seeds:
             modules.processing.fix_seed(p)
 
-        p.batch_size = 1
-        CLIP_ignore_last_layers = opts.CLIP_ignore_last_layers
+        if not opts.return_grid:
+            p.batch_size = 1
+
+
+        CLIP_stop_at_last_layers = opts.CLIP_stop_at_last_layers
 
         def process_axis(opt, vals):
             if opt.label == 'Nothing':
@@ -327,6 +330,6 @@ class Script(scripts.Script):
 
         hypernetwork.load_hypernetwork(opts.sd_hypernetwork)
 
-        opts.data["CLIP_ignore_last_layers"] = CLIP_ignore_last_layers
+        opts.data["CLIP_stop_at_last_layers"] = CLIP_stop_at_last_layers
 
         return processed
