@@ -459,8 +459,8 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
                     image.info["parameters"] = text
                 
                 if p.restore_faces:
-                    # run_extras(extras_mode, image, image_folder, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility)
-                    modules.extras.run_extras(0,image, None,                   0.666,                   0.5,               0.5,                2,                 4,                 0,                          0.0)
+                    # run_extras(extras_mode, resize_mode, image, image_folder, input_dir, output_dir, show_extras_results, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, upscaling_resize_w, upscaling_resize_h, upscaling_crop, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility)
+                    modules.extras.run_extras(0, 0, image, '', '', '', False, 0.666, 0.5, 0.5, 2, 2, 2, False, 4, 0, 0)
                 output_images.append(image)
 
             del x_samples_ddim 
