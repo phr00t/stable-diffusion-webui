@@ -23,6 +23,7 @@ import modules.sd_hijack
 import modules.sd_models
 import modules.shared as shared
 import modules.txt2img
+import modules.script_callbacks
 
 import modules.ui
 from modules import devices
@@ -61,9 +62,6 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
 
 def initialize():
     extensions.list_extensions()
-    #for ext in extensions.extensions:
-    #    print(ext.name, ext.path, ext.enabled, ext.remote)
-    #exit()
 
     if cmd_opts.ui_debug_mode:
         shared.sd_upscalers = upscaler.UpscalerLanczos().scalers
@@ -80,7 +78,7 @@ def initialize():
     modules.scripts.load_scripts()
 
     modules.sd_models.load_model()
-    shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: modules.sd_models.reload_model_weights(shared.sd_model)))
+    shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: modules.sd_models.reload_model_weights()))
     shared.opts.onchange("sd_hypernetwork", wrap_queued_call(lambda: modules.hypernetworks.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)))
     shared.opts.onchange("sd_hypernetwork_strength", modules.hypernetworks.hypernetwork.apply_strength)
 
@@ -142,6 +140,8 @@ def webui():
 
         if launch_api:
             create_api(app)
+
+        modules.script_callbacks.app_started_callback(demo, app)
 
         wait_on_server(demo)
 
