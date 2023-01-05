@@ -704,7 +704,7 @@ def create_ui():
 
                     elif category == "checkboxes":
                         with FormRow(elem_id="txt2img_checkboxes"):
-		                    restore_faces = gr.Checkbox(label='Face Fix & Upscale', value=False, visible=len(shared.face_restorers) > 1)
+                            restore_faces = gr.Checkbox(label='Face Fix & Upscale', value=False, visible=len(shared.face_restorers) > 1)
                             tiling = gr.Checkbox(label='Tiling', value=False, elem_id="txt2img_tiling")
                             enable_hr = gr.Checkbox(label='Hires. fix', value=False, elem_id="txt2img_enable_hr")
 
@@ -927,7 +927,7 @@ def create_ui():
 
                     elif category == "checkboxes":
                         with FormRow(elem_id="img2img_checkboxes"):
-		                    restore_faces = gr.Checkbox(label='Face Fix & Upscale', value=False, visible=len(shared.face_restorers) > 1)
+                            restore_faces = gr.Checkbox(label='Face Fix & Upscale', value=False, visible=len(shared.face_restorers) > 1)
                             tiling = gr.Checkbox(label='Tiling', value=False, elem_id="img2img_tiling")
 
                     elif category == "batch":
