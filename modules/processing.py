@@ -646,15 +646,6 @@ def process_images_inner(p: StableDiffusionProcessing) -> Processed:
                 x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
                 x_sample = x_sample.astype(np.uint8)
 
-                if p.restore_faces:
-                    if opts.save and not p.do_not_save_samples and opts.save_images_before_face_restoration:
-                        images.save_image(Image.fromarray(x_sample), p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-before-face-restoration")
-
-                    devices.torch_gc()
-
-                    x_sample = modules.face_restoration.restore_faces(x_sample)
-                    devices.torch_gc()
-
                 image = Image.fromarray(x_sample)
 
                 if p.scripts is not None:
@@ -677,6 +668,7 @@ def process_images_inner(p: StableDiffusionProcessing) -> Processed:
                 infotexts.append(text)
                 if opts.enable_pnginfo:
                     image.info["parameters"] = text
+                
                 output_images.append(image)
 
             del x_samples_ddim
